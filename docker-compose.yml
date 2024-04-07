@@ -1,0 +1,43 @@
+version: "3.9"
+name: nestjs-app
+services:
+  db:
+    container_name: db
+    image: postgres:16.2-alpine3.19
+    ports:
+      - "5432:5432"
+    env_file:
+      - ./.env
+    environment:
+      - POSTGRES_USER=$PGDB_USERNAME
+      - POSTGRES_PASSWORD=$PGDB_PASSWORD
+      - POSTGRES_DB=$PGDB_DATABASE
+    logging:
+      driver: "none"
+    volumes:
+      - postgresql:/var/lib/postgresql/data
+  api:
+    container_name: api
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./.env
+    environment:
+      - PORT=3000
+      - NODE_ENV=development
+      - PGDB_HOST=$PGDB_HOST
+      - PGDB_PORT=$PGDB_PORT
+      - PGDB_USERNAME=$PGDB_USERNAME
+      - PGDB_PASSWORD=$PGDB_PASSWORD
+      - PGDB_DATABASE=$PGDB_DATABASE
+    volumes:
+      - .:/app/src
+      - /app/node_modules
+    depends_on: 
+      - db
+volumes:
+  postgresql: {}
+    
